@@ -27,13 +27,15 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_extensions',
     'api',
-    'rest_framework'
+    'rest_framework',
+    'silk'
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'silk.middleware.SilkyMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
