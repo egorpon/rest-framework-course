@@ -5,14 +5,25 @@ from rest_framework.decorators import api_view
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
+from api.filters import ProductFilter, InStockFilterBackend
 from .models import Order, Product
 from .serializers import OrderSerializer, ProductInfoSerializer, ProductSerializer
+from rest_framework import filters
+from django_filters.rest_framework import DjangoFilterBackend
 
 
 class ProductListCreateAPIView(generics.ListCreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    filterset_class = ProductFilter
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter,
+        InStockFilterBackend,
+    ]
+    search_fields = ["=name", "description"]
+    ordering_fields = ["name", "price", "stock"]
 
     def get_permissions(self):
         self.permission_classes = [AllowAny]
