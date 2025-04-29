@@ -1,6 +1,18 @@
 from rest_framework import serializers
 from django.db import transaction
-from .models import Product, Order, OrderItem
+from .models import Product, Order, OrderItem, User
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            "password",
+            "user_permissions",
+            "is_authenticated",
+            "get_full_name",
+            "user_orders",
+        )
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -34,7 +46,6 @@ class OrderCreateSerializer(serializers.ModelSerializer):
     items = OrderItemCreateSerializer(many=True, required=False)
     order_id = serializers.UUIDField(read_only=True)
 
-
     def update(self, instance, validated_data):
         orderitem_data = validated_data.pop("items")
 
@@ -46,10 +57,8 @@ class OrderCreateSerializer(serializers.ModelSerializer):
 
                 for item in orderitem_data:
                     OrderItem.objects.create(order=instance, **item)
-            
-            return instance
 
-                
+            return instance
 
     def create(self, validated_data):
         orderitem_data = validated_data.pop("items")
@@ -59,7 +68,6 @@ class OrderCreateSerializer(serializers.ModelSerializer):
             for item in orderitem_data:
                 OrderItem.objects.create(order=order, **item)
         return order
-    
 
     class Meta:
         model = Order

@@ -7,21 +7,24 @@ from rest_framework.pagination import LimitOffsetPagination, PageNumberPaginatio
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
+from rest_framework.throttling import ScopedRateThrottle
 from api.filters import InStockFilterBackend, OrderFilter, ProductFilter
 
-from .models import Order, Product
+from .models import Order, Product, User
 from .serializers import (
     OrderSerializer,
     ProductInfoSerializer,
     ProductSerializer,
     OrderCreateSerializer,
+    UserSerializer
 )
 
 from rest_framework.decorators import action
 
 
 class ProductListCreateAPIView(generics.ListCreateAPIView):
+    throttle_scope = 'products'
+    throttle_classes = [ScopedRateThrottle]
     queryset = Product.objects.all().order_by("pk")
     serializer_class = ProductSerializer
     filterset_class = ProductFilter
@@ -59,6 +62,8 @@ class ProductDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
 
 
 class OrderViewSet(viewsets.ModelViewSet):
+    throttle_scope = 'orders'
+    throttle_classes = [ScopedRateThrottle]
     queryset = Order.objects.prefetch_related("items__product").all()
     serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated]
@@ -110,3 +115,8 @@ class ProductInfoAPIView(APIView):
             }
         )
         return Response(serializer.data)
+
+class UserListView(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    pagination_class = None
